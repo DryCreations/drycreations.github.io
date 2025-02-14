@@ -44,7 +44,7 @@ new p5((p) => {
 		 // Adjusted parameters for better branching
 		maxAgents = Math.floor(p.random(30, 80)); // Increased max agents for better branching
 		initialSize = p.random(30, 60); // More consistent initial size
-		minSize = p.random(2, 5); // Slightly larger minimum size
+		minSize = p.random(0.1, 5); // Slightly larger minimum size
 		branchAngle = p.PI / p.random(8, 12); // More controlled branching angle
 		initialBranchProbability = p.random(0.002, 0.008); // Higher initial probability
 		maxBranchLength = p.random(80, 150); // Shorter but more consistent branches
