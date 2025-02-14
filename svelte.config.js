@@ -21,18 +21,13 @@ const config = {
 		},
 		prerender: {
 			handleHttpError: ({ path, referrer, message }) => {
-				// Ignore 404 errors during prerendering
 				if (message.includes('does not begin with `base`')) {
 					return;
 				}
 				throw new Error(message);
 			},
-			entries: [
-				'*', // Include all routes
-				'/rss.xml',
-				'/api/random-sketch'
-			],
-			handleMissingId: 'ignore'  // Add this line to handle missing ID links
+			entries: ['*'],  // Simplified to prerender everything
+			handleMissingId: 'ignore'
 		}
 	},
 	preprocess: [

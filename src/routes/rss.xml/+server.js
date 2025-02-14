@@ -1,3 +1,5 @@
+export const prerender = true;
+
 export async function GET() {
 	const posts = import.meta.glob('/src/routes/blog/**/+page.md', { eager: true });
 	const baseUrl = 'drycreations.github.com';
