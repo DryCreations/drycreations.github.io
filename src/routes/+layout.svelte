@@ -71,7 +71,7 @@
 	</aside>
   
 	<main class="flex-1 relative">
-	  <article class="p-4 prose max-w-3xl mx-auto mt-1">
+	  <article class="p-4  pb-0 mb-0 prose max-w-3xl mx-auto mt-1">
 		<slot />
 	  </article>
 	</main>

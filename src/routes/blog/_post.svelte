@@ -9,14 +9,45 @@
 	const darkColors = ['bg-gray-900'];
 	const randomColor = darkColors[Math.floor(Math.random() * darkColors.length)];
 
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
+	import { beforeNavigate } from '$app/navigation'; // Updated import
 
 	let sketchLoaded = false;
+	let sketchScript;
+	let contentHeight;
+	let containerHeight;
 
 	onMount(() => {
+		updateHeights();
 		window.addEventListener('scroll', handleScroll);
-		return () => window.removeEventListener('scroll', handleScroll);
+		window.addEventListener('resize', updateHeights);
+		return () => {
+			window.removeEventListener('scroll', handleScroll);
+			window.removeEventListener('resize', updateHeights);
+		}
 	});
+
+	beforeNavigate(() => {
+		cleanupSketch();
+	});
+
+	onDestroy(() => {
+		cleanupSketch();
+	});
+
+	function cleanupSketch() {
+		if (typeof document !== 'undefined') {
+			if (sketchScript) {
+				sketchScript.remove();
+			}
+			const container = document.getElementById("sketch-container");
+			if (container) {
+				container.innerHTML = "";
+				const canvases = document.querySelectorAll('.p5Canvas');
+				canvases.forEach(canvas => canvas.remove());
+			}
+		}
+	}
 
 	function handleScroll() {
 		if (sketchLoaded) return;
@@ -36,7 +67,15 @@
 				const script = document.createElement('script');
 				script.textContent = scriptContent;
 				document.body.appendChild(script);
+				sketchScript = script;
 			});
+	}
+
+	function updateHeights() {
+		if (typeof window !== 'undefined') {
+			contentHeight = document.body.scrollHeight;
+			containerHeight = Math.max(window.innerHeight, contentHeight);
+		}
 	}
 </script>
 
@@ -65,6 +104,8 @@
 	</div>
 </main>
 
-<div id="sketch-container" class="absolute top-0 left-0 w-screen" style="height: 100%; z-index: -1;">
+<div id="sketch-container" 
+     class="fixed bottom-0 left-0 w-screen" 
+     style="height: {containerHeight}px; z-index: -1;">
 	<!-- Canvas will be appended here by p5.js -->
 </div>
