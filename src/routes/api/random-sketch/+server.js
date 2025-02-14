@@ -3,33 +3,27 @@ export const prerender = true;
 import fs from 'fs';
 import path from 'path';
 
-// Simple hash function for strings
-function hashString(str) {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-        const char = str.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash;
-    }
-    return Math.abs(hash);
+// Generate 10 different static versions
+export async function entries() {
+    return Array.from({ length: 10 }, (_, i) => ({
+        id: i.toString()
+    }));
 }
 
-export async function GET({ url }) {
-    const seed = url.searchParams.get('seed') || 'default';
+export async function GET({ params }) {
     const sketchesDir = path.resolve('static/sketches');
     const files = fs.readdirSync(sketchesDir);
     
-    // Use the seed to consistently select a random file
-    const hash = hashString(seed);
-    const randomFile = files[hash % files.length];
-    const filePath = path.join(sketchesDir, randomFile);
+    // Use the entry ID to deterministically select a sketch
+    const index = parseInt(params.id || '0') % files.length;
+    const selectedFile = files[index];
+    const filePath = path.join(sketchesDir, selectedFile);
     const sketchContent = fs.readFileSync(filePath, 'utf-8');
 
     return new Response(JSON.stringify({
         sketch: sketchContent,
-        file: randomFile
+        file: selectedFile
     }), {
-        status: 200,
         headers: {
             'Content-Type': 'application/json'
         }
