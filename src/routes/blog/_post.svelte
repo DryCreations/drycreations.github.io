@@ -86,18 +86,19 @@
 			container: canvasContainer
 		};
 		
-		const loadScript = (delay = 0) => {
-			setTimeout(() => {
-				// Use the last segment of the URL path as a seed
+		const loadScript = async (delay = 0) => {
+			setTimeout(async () => {
+				// Load sketches from the JSON endpoint
+				const response = await fetch('/sketches.json');
+				const { sketches } = await response.json();
+				
 				const pathSegments = $page.url.pathname.split('/');
 				const slug = pathSegments[pathSegments.length - 1];
-				// Convert slug to a number between 0-9 using simple hash
 				const hash = [...slug].reduce((acc, char) => acc + char.charCodeAt(0), 0);
-				const sketchIndex = hash % 10;
+				const sketchPath = sketches[hash % sketches.length];
 				
-				// Load sketch directly from static file
 				const script = document.createElement('script');
-				script.src = `/sketches/sketch${sketchIndex}.js`;
+				script.src = sketchPath;
 				document.body.appendChild(script);
 				sketchScript = script;
 			}, delay);
