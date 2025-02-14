@@ -10,6 +10,15 @@ const config = {
 		}),
 		paths: {
 			base: process.env.NODE_ENV === 'development' ? '' : process.env.BASE_PATH || ''
+		},
+		prerender: {
+			handleHttpError: ({ path, referrer, message }) => {
+				// Ignore 404 errors during prerendering
+				if (message.includes('does not begin with `base`')) {
+					return;
+				}
+				throw new Error(message);
+			}
 		}
 	},
 	preprocess: [
