@@ -55,6 +55,9 @@
 </script>
 
 <style>
+	.hamburger-container, aside {
+		will-change: transform;
+	}
 </style>
 
 <!-- Overlay for mobile -->
@@ -70,8 +73,8 @@
   
 <div class="flex min-h-screen relative">
     <!-- Hamburger button as separate fixed element -->
-    <div class="fixed top-4 z-50 transition-transform duration-300 ease-in-out"
-         style="transform: translateX({sidebarOpen ? '21rem' : '1rem'})">
+    <div class="fixed top-4 z-50 transition-transform duration-300 ease-in-out hamburger-container"
+         style="transform: translate3d({sidebarOpen ? '21rem' : '1rem'}, 0, 0)">
         <button 
             on:click={toggleSidebar} 
             aria-label={sidebarOpen ? "Close navigation menu" : "Open navigation menu"}
@@ -90,7 +93,7 @@
     </div>
 
 	<aside class="fixed top-0 left-0 h-screen w-80 bg-gray-900 text-gray-100 transform transition-transform duration-300 ease-in-out z-40 overflow-y-auto"
-	  style="transform: translateX({sidebarOpen ? '0' : '-100%'})"
+	  style="transform: translate3d({sidebarOpen ? '0' : '-100%'}, 0, 0)"
 	  role="navigation"
 	  aria-label="Blog navigation">
 	  

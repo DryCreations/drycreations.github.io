@@ -20,10 +20,8 @@
 	onMount(() => {
 		updateHeights();
 		window.addEventListener('scroll', handleScroll);
-		window.addEventListener('resize', updateHeights);
 		return () => {
 			window.removeEventListener('scroll', handleScroll);
-			window.removeEventListener('resize', updateHeights);
 		}
 	});
 
@@ -61,15 +59,40 @@
 	}
 
 	function loadSketch() {
-		console.log("LOADING SKETCH")
-		fetch('/api/random-sketch')
-			.then(response => response.text())
-			.then(scriptContent => {
-				const script = document.createElement('script');
-				script.textContent = scriptContent;
-				document.body.appendChild(script);
-				sketchScript = script;
-			});
+		if (typeof window === 'undefined') return;
+		
+		// Detect device performance
+		const isMobile = window.innerWidth <= 640;
+		const isLowPerformance = isMobile && window.navigator.hardwareConcurrency <= 4;
+		
+		// Add performance flags to window
+		window.SKETCH_CONFIG = {
+			isLowPerformance,
+			targetFrameRate: isLowPerformance ? 24 : 30
+		};
+		
+		// Load sketch with delay on mobile
+		if (isMobile) {
+			setTimeout(() => {
+				fetch('/api/random-sketch')
+					.then(response => response.text())
+					.then(scriptContent => {
+						const script = document.createElement('script');
+						script.textContent = scriptContent;
+						document.body.appendChild(script);
+						sketchScript = script;
+					});
+			}, 1000);
+		} else {
+			fetch('/api/random-sketch')
+				.then(response => response.text())
+				.then(scriptContent => {
+					const script = document.createElement('script');
+					script.textContent = scriptContent;
+					document.body.appendChild(script);
+					sketchScript = script;
+				});
+		}
 	}
 
 	function updateHeights() {
@@ -91,6 +114,18 @@
 			}
 		}
 	}
+
+	// Use ResizeObserver instead of window resize event
+	onMount(() => {
+		if (typeof ResizeObserver !== 'undefined') {
+			const wrapper = document.getElementById('canvas-wrapper');
+			if (wrapper) {
+				const observer = new ResizeObserver(updateHeights);
+				observer.observe(wrapper);
+				return () => observer.disconnect();
+			}
+		}
+	});
 </script>
 
 <main style="margin: 0; padding: 0;">
@@ -109,7 +144,7 @@
 						<a href="#tag-{tag}" 
 						   class="inline-block rounded px-2 py-1 text-xs text-indigo-600 uppercase font-medium transition-colors duration-200 hover:bg-gray-800/10">
 							{tag}
-						</a>{#if tag !== tags[tags.length - 1]}, {/if}
+						</a>
 					{/each}
 					<h1 class="text-gray-900 font-bold text-3xl mb-2">{title}</h1>
 					<p class="text-gray-700 text-xs mt-2">Written By: <span class="text-indigo-600 font-medium">{author}</span></p>
@@ -129,8 +164,9 @@
 	</div>
 </main>
 
-<!-- Adjust canvas wrapper and sketch container widths -->
-<div id="canvas-wrapper" style="position: fixed; bottom: 0; left: 0; width: 100%; overflow: hidden;">
+<!-- Optimize container mounting -->
+<div id="canvas-wrapper" 
+     style="position: fixed; bottom: 0; left: 0; width: 100%; overflow: hidden; {sketchLoaded ? '' : 'display: none;'}">
 	<div id="sketch-container" 
 	     style="height: {containerHeight}px; width: 100%; z-index: -1;">
 		<!-- Canvas will be appended here by p5.js -->
