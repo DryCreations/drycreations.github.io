@@ -79,26 +79,30 @@
 
 	function loadSketch() {
 		if (typeof window === 'undefined') return;
+
 		window.SKETCH_CONFIG = {
 			isLowPerformance: window.innerWidth <= 640 && window.navigator.hardwareConcurrency <= 4,
 			targetFrameRate: window.innerWidth <= 640 ? 24 : 30,
 			container: canvasContainer
-			};
+		};
 		
-		// Fetch and load the sketch script with page URL as seed
 		const loadScript = (delay = 0) => {
 			setTimeout(() => {
-				const seedUrl = $page.url.pathname;
-				fetch(`/api/random-sketch?seed=${encodeURIComponent(seedUrl)}`)
-					.then(response => response.json())
-					.then(data => {
-						const script = document.createElement('script');
-						script.textContent = data.sketch;
-						document.body.appendChild(script);
-						sketchScript = script;
-					});
+				// Use the last segment of the URL path as a seed
+				const pathSegments = $page.url.pathname.split('/');
+				const slug = pathSegments[pathSegments.length - 1];
+				// Convert slug to a number between 0-9 using simple hash
+				const hash = [...slug].reduce((acc, char) => acc + char.charCodeAt(0), 0);
+				const sketchIndex = hash % 10;
+				
+				// Load sketch directly from static file
+				const script = document.createElement('script');
+				script.src = `/sketches/sketch${sketchIndex}.js`;
+				document.body.appendChild(script);
+				sketchScript = script;
 			}, delay);
 		};
+		
 		loadScript(window.innerWidth <= 640 ? 1000 : 0);
 	}
 </script>

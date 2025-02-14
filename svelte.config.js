@@ -1,12 +1,20 @@
 import adapter from '@sveltejs/adapter-static';
 import { mdsvex } from 'mdsvex';
+import { buildSketches } from './src/lib/build-sketches.js';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	extensions: ['.svelte', '.svx', '.md'],
 	kit: {
 		adapter: adapter({
-			fallback: '404.html'
+			pages: 'build',
+			assets: 'build',
+			fallback: null,
+			precompress: false,
+			strict: true,
+			onStart: () => {
+				buildSketches();
+			}
 		}),
 		paths: {
 			base: process.env.NODE_ENV === 'development' ? '' : process.env.BASE_PATH || ''
