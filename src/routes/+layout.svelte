@@ -65,7 +65,7 @@
         on:click={toggleSidebar}
         on:keydown={(e) => handleKeydown(e, toggleSidebar)}
         aria-label="Close navigation menu"
-    />
+    ></button>
 {/if}
   
 <div class="flex min-h-screen relative">

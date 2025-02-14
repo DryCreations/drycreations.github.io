@@ -23,7 +23,8 @@ const config = {
 				'*', // Include all routes
 				'/rss.xml',
 				'/api/random-sketch'
-			]
+			],
+			handleMissingId: 'ignore'  // Add this line to handle missing ID links
 		}
 	},
 	preprocess: [
