@@ -52,7 +52,8 @@
 	function handleScroll() {
 		if (sketchLoaded) return;
 		const scrollPosition = window.scrollY + window.innerHeight;
-		const threshold = document.body.scrollHeight - 100; // Adjust the threshold as needed
+		// Use document.documentElement.scrollHeight for cross-browser compatibility
+		const threshold = document.documentElement.scrollHeight;
 		if (scrollPosition >= threshold) {
 			loadSketch();
 			sketchLoaded = true;
@@ -73,21 +74,26 @@
 
 	function updateHeights() {
 		if (typeof window !== 'undefined') {
-			contentHeight = document.body.scrollHeight;
-			containerHeight = Math.max(window.innerHeight, contentHeight);
+			const wrapper = document.getElementById('canvas-wrapper');
+			if (wrapper && wrapper.getBoundingClientRect().height > 0) {
+				containerHeight = Math.max(wrapper.getBoundingClientRect().height - 100, 0);
+			} else {
+				const mainEl = document.querySelector('main');
+				containerHeight = mainEl ? Math.max(mainEl.getBoundingClientRect().height - 100, 0) : document.documentElement.clientHeight;
+			}
 		}
 	}
 </script>
 
-<main>
-	<div class="relative z-10 max-w-screen-xl mx-auto p-5 sm:p-8 md:p-12">
+<main style="margin: 0; padding: 0;">
+	<div class="relative z-10 w-full max-w-full sm:max-w-screen-xl mx-auto p-2 sm:p-8 md:p-12">
 		{#if image}
 			<div class="bg-cover h-64 text-center overflow-hidden absolute inset-0 w-full" style="height: 450px; background-image: url('{image}')"></div>
 		{:else}
 			<div class="{color || randomColor} h-64 text-center overflow-hidden absolute inset-0 w-full" style="height: 450px;"></div>
 		{/if}
-		<div class="relative max-w-2xl mx-auto mt-64 z-10">
-			<div class="bg-white opacity-90 rounded flex flex-col justify-between leading-normal p-4">
+		<div class="relative w-full max-w-full sm:max-w-2xl mx-auto mt-32 sm:mt-64 z-10">
+			<div class="rounded flex flex-col justify-between leading-normal p-4" style="background:rgba(255,255,255,.8)">
 				<div class="relative">
 					{#each tags as tag}
 						<a href="javascript:void(0);" class="text-xs text-indigo-600 uppercase font-medium hover:text-gray-900 transition duration-500 ease-in-out">{tag}</a>{#if tag !== tags[tags.length - 1]}, {/if}
@@ -96,7 +102,7 @@
 					<p class="text-gray-700 text-xs mt-2">Written By: <span class="text-indigo-600 font-medium">{author}</span></p>
 					<p class="text-gray-700 text-xs">{date}</p>
 				</div>
-				<article class="prose max-w-none mt-4">
+				<article class="prose prose-sm sm:prose lg:prose-lg w-full max-w-[100vw] sm:max-w-none mt-4">
 					<slot />
 				</article>
 			</div>
@@ -104,8 +110,10 @@
 	</div>
 </main>
 
-<div id="sketch-container" 
-     class="fixed bottom-0 left-0 w-screen" 
-     style="height: {containerHeight}px; z-index: -1;">
-	<!-- Canvas will be appended here by p5.js -->
+<!-- Adjust canvas wrapper and sketch container widths -->
+<div id="canvas-wrapper" style="position: fixed; bottom: 0; left: 0; width: 100%; overflow: hidden;">
+	<div id="sketch-container" 
+	     style="height: {containerHeight}px; width: 100%; z-index: -1;">
+		<!-- Canvas will be appended here by p5.js -->
+	</div>
 </div>

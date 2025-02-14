@@ -1,3 +1,7 @@
+<svelte:head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</svelte:head>
+
 <script>
 	import '../app.css';
 	import { onMount } from 'svelte';
@@ -5,10 +9,9 @@
 	export let data;
   
 	let innerWidth = 1024;
-	let sidebarOpen = true;
+	let sidebarOpen = false;
   
 	$: isDesktop = innerWidth >= 800;
-	$: toggleLeft = sidebarOpen ? '20.5rem' : '0.5rem';
   
 	function toggleSidebar() {
 	  sidebarOpen = !sidebarOpen;
@@ -19,16 +22,37 @@
 	  sidebarOpen = innerWidth >= 800;
 	  const onResize = () => {
 		innerWidth = window.innerWidth;
+		if (innerWidth >= 800) {
+		  sidebarOpen = true;
+		}
 	  };
 	  window.addEventListener('resize', onResize);
 	  return () => window.removeEventListener('resize', onResize);
 	});
 </script>
+
+<!-- Overlay for mobile -->
+{#if sidebarOpen && !isDesktop}
+  <div class="fixed inset-0 bg-black opacity-50 z-30" on:click={toggleSidebar}></div>
+{/if}
   
-<div class="flex flex-1 relative">
-	<aside class="bg-gray-900 text-gray-100 transform transition-transform duration-300 z-20 w-80 h-screen overflow-y-auto"
-	  class:fixed={true}
-	  style="transform: { sidebarOpen ? 'translateX(0)' : 'translateX(-100%)' }">
+<div class="flex min-h-screen relative">
+    <!-- Hamburger button as separate fixed element -->
+    <div class="fixed top-4 z-50 transition-transform duration-300 ease-in-out"
+         style="transform: translateX({sidebarOpen ? '21rem' : '1rem'})">
+        <button 
+            on:click={toggleSidebar} 
+            aria-label="Toggle Sidebar" 
+            class="bg-gray-800/70 p-2 rounded hover:bg-gray-700/70 transition-colors duration-200">
+            <svg class="w-6 h-6 text-gray-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+        </button>
+    </div>
+
+	<aside class="fixed top-0 left-0 h-screen w-80 bg-gray-900 text-gray-100 transform transition-transform duration-300 ease-in-out z-40 overflow-y-auto"
+	  style="transform: translateX({sidebarOpen ? '0' : '-100%'})">
+	  
 	  <div class="p-4 pb-0 text-2xl font-bold">
 		<a href="/">Dry Creations</a>
 	  </div>
@@ -70,17 +94,9 @@
 	  </div>
 	</aside>
   
-	<main class="flex-1 relative">
-	  <article class="p-4  pb-0 mb-0 prose max-w-3xl mx-auto mt-1">
+	<main class="flex-1 w-full transition-all duration-300" style="margin-left: {isDesktop && sidebarOpen ? '20rem' : '0'}">
+	  <article class="p-4 pb-0 mb-0 prose prose-sm sm:prose lg:prose-lg w-full max-w-[100vw] sm:max-w-none mx-auto mt-1">
 		<slot />
 	  </article>
 	</main>
-</div>
-  
-<div class="fixed top-4 z-50 transition-all duration-300" style="left: {toggleLeft}">
-	<button on:click={toggleSidebar} aria-label="Toggle Sidebar" class="bg-gray-800/70 p-2 rounded">
-	  <svg class="w-6 h-6 text-gray-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-		<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-	  </svg>
-	</button>
 </div>

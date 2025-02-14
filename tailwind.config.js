@@ -1,12 +1,23 @@
+/** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: "class",
-  content: [
-    "./src/**/*.{html,js,svelte,ts,md,svx}"
-  ],
+  content: ['./src/**/*.{html,js,svelte,ts,md,svx}'],
   theme: {
-    extend: {}
+    extend: {
+      typography: {
+        DEFAULT: {
+          css: {
+            maxWidth: 'none', // Remove default max-width
+            p: {
+              maxWidth: '100%', // Ensure paragraphs don't overflow
+            },
+            pre: {
+              maxWidth: '100vw', // Ensure code blocks don't overflow
+              overflow: 'auto',
+            }
+          }
+        }
+      }
+    }
   },
-  plugins: [
-    require('@tailwindcss/typography')
-  ]
+  plugins: [require('@tailwindcss/typography')]
 }
