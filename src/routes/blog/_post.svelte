@@ -101,23 +101,23 @@
 </script>
 
 <main style="margin: 0; padding: 0; position: relative; overflow: hidden;">
-    <!-- Remove duplicated canvas-wrapper; use only one container with low z-index -->
+    <!-- Canvas container expanded to cover full viewport width -->
     <div bind:this={canvasContainer}
-         class="absolute bottom-0 left-0 w-full"
-         style="z-index: -1; height: {Math.min(browserHeight, MAX_CANVAS_HEIGHT)}px; pointer-events: none; {sketchLoaded ? '' : 'display: none;'}">
+         class="absolute bottom-0"
+         style="left: 50%; transform: translateX(-50%); z-index: -1; width: 100vw; height: {Math.min(browserHeight, MAX_CANVAS_HEIGHT)}px; pointer-events: none; {sketchLoaded ? '' : 'display: none;'}">
     </div>
 
     <!-- Main content with higher z-index -->
     <div class="relative w-full max-w-full sm:max-w-screen-xl mx-auto p-2 sm:p-8 md:p-12">
         {#if image}
-            <div class="bg-cover h-[450px] text-center overflow-hidden absolute left-2 right-2 sm:left-8 md:left-12 lg:left-[3rem] sm:right-8 md:right-12 lg:right-[3rem] top-0" style="background-image: url('{image}')"></div>
+            <div class="bg-cover h-[450px] rounded text-center overflow-hidden absolute left-2 right-2 sm:left-8 md:left-12 lg:left-[3rem] sm:right-8 md:right-12 lg:right-[3rem] top-0" style="background-image: url('{image}')"></div>
         {:else}
-            <div class="{color || randomColor} h-[450px] text-center overflow-hidden absolute left-2 right-2 sm:left-8 md:left-12 lg:left-[3rem] sm:right-8 md:right-12 lg:right-[3rem] top-0"></div>
+            <div class="{color || randomColor} h-[450px] rounded text-center overflow-hidden absolute left-2 right-2 sm:left-8 md:left-12 lg:left-[3rem] sm:right-8 md:right-12 lg:right-[3rem] top-0"></div>
         {/if}
         
         <!-- Header section -->
-        <div class="relative w-full max-w-full sm:max-w-2xl mx-auto mt-24 z-10">
-            <div class="rounded rounded-b-none flex flex-col justify-between leading-normal p-4 min-h-[350px]" style="background:rgba(255,255,255,.9)">
+        <div class="relative w-full max-w-full sm:max-w-2xl mx-auto mt-40 z-10">
+            <div class="rounded rounded-b-none flex flex-col justify-between leading-normal p-4 min-h-[280px]" style="background:rgba(255,255,255,.9)">
                 <div class="relative">
                     {#each tags as tag}
                         <a href="#tag-{tag}" 
