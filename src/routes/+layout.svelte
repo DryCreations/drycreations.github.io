@@ -218,7 +218,7 @@
 	</aside>
   
 	<main class="flex-1 w-full transition-all duration-300" style="margin-left: {isDesktop && sidebarOpen ? '20rem' : '0'}">
-	  <article class="p-4 pb-0 mb-0 prose prose-sm sm:prose lg:prose-lg w-full max-w-[100vw] sm:max-w-none mx-auto mt-1">
+	  <article class="pt-4 pb-0 mb-0 prose prose-sm sm:prose lg:prose-lg w-full max-w-[100vw] sm:max-w-none mx-auto mt-1">
 		<slot />
 	  </article>
 	</main>
