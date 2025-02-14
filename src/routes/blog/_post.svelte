@@ -75,11 +75,19 @@
 	function updateHeights() {
 		if (typeof window !== 'undefined') {
 			const wrapper = document.getElementById('canvas-wrapper');
+			const isMobile = window.innerWidth <= 640; // Standard mobile breakpoint
+
 			if (wrapper && wrapper.getBoundingClientRect().height > 0) {
-				containerHeight = Math.max(wrapper.getBoundingClientRect().height - 100, 0);
+				containerHeight = isMobile 
+					? wrapper.getBoundingClientRect().height 
+					: Math.max(wrapper.getBoundingClientRect().height - 100, 0);
 			} else {
 				const mainEl = document.querySelector('main');
-				containerHeight = mainEl ? Math.max(mainEl.getBoundingClientRect().height - 100, 0) : document.documentElement.clientHeight;
+				containerHeight = mainEl 
+					? (isMobile 
+						? mainEl.getBoundingClientRect().height 
+						: Math.max(mainEl.getBoundingClientRect().height - 100, 0))
+					: document.documentElement.clientHeight;
 			}
 		}
 	}

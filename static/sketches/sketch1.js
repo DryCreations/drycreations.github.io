@@ -4,9 +4,9 @@ new p5((p) => {
 	let maxAgents, initialSize, minSize, branchAngle, initialBranchProbability;
 	let maxBranchLength, minBranchLength, iterations;
 	let startColor, canvas, currentIteration = 0, x_variance, y_variance;
-	let frameRateValue = 30; // Control frame rate
+	let frameRateValue = 60; // Control frame rate
 	let startTime;
-	let maxRuntime = 30000;
+	let maxRuntime = 60000;
 
 	function getAgent(x, y, angle, size, color, branchProb, maxLen) {
 		if (agentPool.length > 0) {
@@ -25,15 +25,17 @@ new p5((p) => {
 	}
 
 	p.setup = function() {
-		const mainEl = document.querySelector('main');
+		const mainEl = document.querySelector('html');
 		let mainWidth = window.innerWidth;
 		let mainHeight = window.innerHeight;
+		const isMobile = window.innerWidth <= 640;
+
 		if (mainEl) {
 			const rect = mainEl.getBoundingClientRect();
 			mainWidth = rect.width;
 			mainHeight = rect.height;
 		}
-		canvas = p.createCanvas(mainWidth, mainHeight -100);
+		canvas = p.createCanvas(mainWidth,isMobile ? mainHeight : mainHeight - 100);
 		canvas.position(0, 0);
 		canvas.style('z-index', '-1');
 
