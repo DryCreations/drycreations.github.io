@@ -14,15 +14,47 @@
 
 	let sketchLoaded = false;
 	let sketchScript;
-	let contentHeight;
 	let containerHeight;
+	let browserHeight = typeof window !== 'undefined' ? window.innerHeight : 1024;
+	let canvasContainer;
+
+	const MAX_CANVAS_HEIGHT = 1080;
+
+	// Consolidate resize handling into one listener.
+	function updateHeights() {
+		const contentEl = document.querySelector('.article-content');
+		if (contentEl) {
+			containerHeight = Math.min(contentEl.getBoundingClientRect().height, MAX_CANVAS_HEIGHT);
+		}
+	}
+	// Throttle scroll handling
+	let scrollTimeout;
+	function handleScroll() {
+		if (sketchLoaded) return;
+		if (scrollTimeout) return;
+		scrollTimeout = setTimeout(() => {
+			const scrollPosition = window.scrollY + window.innerHeight;
+			const documentHeight = document.documentElement.scrollHeight;
+			if (scrollPosition >= documentHeight / 2) {
+				loadSketch();
+				sketchLoaded = true;
+			}
+			scrollTimeout = null;
+		}, 50);
+	}
 
 	onMount(() => {
 		updateHeights();
 		window.addEventListener('scroll', handleScroll);
+		const onResize = () => {
+			browserHeight = window.innerHeight;
+			updateHeights();
+		};
+		window.addEventListener('resize', onResize);
 		return () => {
 			window.removeEventListener('scroll', handleScroll);
-		}
+			window.removeEventListener('resize', onResize);
+		};
 	});
 
 	beforeNavigate(() => {
@@ -34,45 +66,25 @@
 	});
 
 	function cleanupSketch() {
-		if (typeof document !== 'undefined') {
-			if (sketchScript) {
-				sketchScript.remove();
-			}
+		if (typeof document !== 'undefined' && sketchScript) {
+			sketchScript.remove();
 			const container = document.getElementById("sketch-container");
 			if (container) {
 				container.innerHTML = "";
-				const canvases = document.querySelectorAll('.p5Canvas');
-				canvases.forEach(canvas => canvas.remove());
+				document.querySelectorAll('.p5Canvas').forEach(canvas => canvas.remove());
 			}
-		}
-	}
-
-	function handleScroll() {
-		if (sketchLoaded) return;
-		const scrollPosition = window.scrollY + window.innerHeight;
-		const documentHeight = document.documentElement.scrollHeight;
-		// Load sketch when scrolled halfway down the page
-		if (scrollPosition >= documentHeight / 2) {
-			loadSketch();
-			sketchLoaded = true;
 		}
 	}
 
 	function loadSketch() {
 		if (typeof window === 'undefined') return;
-		
-		// Detect device performance
-		const isMobile = window.innerWidth <= 640;
-		const isLowPerformance = isMobile && window.navigator.hardwareConcurrency <= 4;
-		
-		// Add performance flags to window
 		window.SKETCH_CONFIG = {
-			isLowPerformance,
-			targetFrameRate: isLowPerformance ? 24 : 30
+			isLowPerformance: window.innerWidth <= 640 && window.navigator.hardwareConcurrency <= 4,
+			targetFrameRate: window.innerWidth <= 640 ? 24 : 30,
+			container: canvasContainer
 		};
-		
-		// Load sketch with delay on mobile
-		if (isMobile) {
+		// Fetch and load the sketch script
+		const loadScript = (delay = 0) => {
 			setTimeout(() => {
 				fetch('/api/random-sketch')
 					.then(response => response.text())
@@ -82,93 +94,52 @@
 						document.body.appendChild(script);
 						sketchScript = script;
 					});
-			}, 1000);
-		} else {
-			fetch('/api/random-sketch')
-				.then(response => response.text())
-				.then(scriptContent => {
-					const script = document.createElement('script');
-					script.textContent = scriptContent;
-					document.body.appendChild(script);
-					sketchScript = script;
-				});
-		}
+				}, delay);
+		};
+		loadScript(window.innerWidth <= 640 ? 1000 : 0);
 	}
-
-	function updateHeights() {
-		if (typeof window !== 'undefined') {
-			const wrapper = document.getElementById('canvas-wrapper');
-			const isMobile = window.innerWidth <= 640; // Standard mobile breakpoint
-
-			if (wrapper && wrapper.getBoundingClientRect().height > 0) {
-				containerHeight = isMobile 
-					? wrapper.getBoundingClientRect().height 
-					: Math.max(wrapper.getBoundingClientRect().height - 100, 0);
-			} else {
-				const mainEl = document.querySelector('main');
-				containerHeight = mainEl 
-					? (isMobile 
-						? mainEl.getBoundingClientRect().height 
-						: Math.max(mainEl.getBoundingClientRect().height - 100, 0))
-					: document.documentElement.clientHeight;
-			}
-		}
-	}
-
-	// Use ResizeObserver instead of window resize event
-	onMount(() => {
-		if (typeof ResizeObserver !== 'undefined') {
-			const wrapper = document.getElementById('canvas-wrapper');
-			if (wrapper) {
-				const observer = new ResizeObserver(updateHeights);
-				observer.observe(wrapper);
-				return () => observer.disconnect();
-			}
-		}
-	});
 </script>
 
-<main style="margin: 0; padding: 0;">
-	<div class="relative z-10 w-full max-w-full sm:max-w-screen-xl mx-auto p-2 sm:p-8 md:p-12">
-		{#if image}
-			<div class="bg-cover h-[450px] text-center overflow-hidden absolute left-2 right-2 sm:left-8 md:left-12 lg:left-[3rem] sm:right-8 md:right-12 lg:right-[3rem] top-0" style="background-image: url('{image}')"></div>
-		{:else}
-			<div class="{color || randomColor} h-[450px] text-center overflow-hidden absolute left-2 right-2 sm:left-8 md:left-12 lg:left-[3rem] sm:right-8 md:right-12 lg:right-[3rem] top-0"></div>
-		{/if}
-		
-		<!-- Header section -->
-		<div class="relative w-full max-w-full sm:max-w-2xl mx-auto mt-24 z-10">
-			<div class="rounded rounded-b-none flex flex-col justify-between leading-normal p-4 min-h-[350px]" style="background:rgba(255,255,255,.9)">
-				<div class="relative">
-					{#each tags as tag}
-						<a href="#tag-{tag}" 
-						   class="inline-block rounded px-2 py-1 text-xs text-indigo-600 uppercase font-medium transition-colors duration-200 hover:bg-gray-800/10">
-							{tag}
-						</a>
-					{/each}
-					<h1 class="text-gray-900 font-bold text-3xl mb-2">{title}</h1>
-					<p class="text-gray-700 text-xs mt-2">Written By: <span class="text-indigo-600 font-medium">{author}</span></p>
-					<p class="text-gray-700 text-xs">{date}</p>
-				</div>
-			</div>
-		</div>
+<main style="margin: 0; padding: 0; position: relative; overflow: hidden;">
+    <!-- Remove duplicated canvas-wrapper; use only one container with low z-index -->
+    <div bind:this={canvasContainer}
+         class="absolute bottom-0 left-0 w-full"
+         style="z-index: -1; height: {Math.min(browserHeight, MAX_CANVAS_HEIGHT)}px; pointer-events: none; {sketchLoaded ? '' : 'display: none;'}">
+    </div>
 
-		<!-- Article content -->
-		<div class="relative w-full max-w-full sm:max-w-2xl mx-auto z-10">
-			<div class="rounded rounded-t-none flex flex-col justify-between leading-normal p-4" style="background:rgba(255,255,255,.9)">
-				<article class="prose prose-sm sm:prose lg:prose-lg w-full max-w-[100vw] sm:max-w-none">
-					<slot />
-				</article>
-			</div>
-		</div>
-	</div>
+    <!-- Main content with higher z-index -->
+    <div class="relative w-full max-w-full sm:max-w-screen-xl mx-auto p-2 sm:p-8 md:p-12">
+        {#if image}
+            <div class="bg-cover h-[450px] text-center overflow-hidden absolute left-2 right-2 sm:left-8 md:left-12 lg:left-[3rem] sm:right-8 md:right-12 lg:right-[3rem] top-0" style="background-image: url('{image}')"></div>
+        {:else}
+            <div class="{color || randomColor} h-[450px] text-center overflow-hidden absolute left-2 right-2 sm:left-8 md:left-12 lg:left-[3rem] sm:right-8 md:right-12 lg:right-[3rem] top-0"></div>
+        {/if}
+        
+        <!-- Header section -->
+        <div class="relative w-full max-w-full sm:max-w-2xl mx-auto mt-24 z-10">
+            <div class="rounded rounded-b-none flex flex-col justify-between leading-normal p-4 min-h-[350px]" style="background:rgba(255,255,255,.9)">
+                <div class="relative">
+                    {#each tags as tag}
+                        <a href="#tag-{tag}" 
+                           class="inline-block rounded px-2 py-1 text-xs text-indigo-600 uppercase font-medium transition-colors duration-200 hover:bg-gray-800/10">
+                            {tag}
+                        </a>
+                    {/each}
+                    <h1 class="text-gray-900 font-bold text-3xl mb-2">{title}</h1>
+                    <p class="text-gray-700 text-xs mt-2">Written By: <span class="text-indigo-600 font-medium">{author}</span></p>
+                    <p class="text-gray-700 text-xs">{date}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Article content - Add class for targeting -->
+        <div class="article-content relative w-full max-w-full sm:max-w-2xl mx-auto z-10">
+            <div class="rounded rounded-t-none flex flex-col justify-between leading-normal p-4" 
+                 style="background: rgba(255,255,255,.9)">
+                <article class="prose prose-sm sm:prose lg:prose-lg w-full max-w-[100vw] sm:max-w-none">
+                    <slot />
+                </article>
+            </div>
+        </div>
+    </div>
 </main>
-
-<!-- Optimize container mounting -->
-<div id="canvas-wrapper" 
-     style="position: fixed; bottom: 0; left: 0; width: 100%; overflow: hidden; {sketchLoaded ? '' : 'display: none;'}">
-	<div id="sketch-container" 
-	     style="height: {containerHeight}px; width: 100%; z-index: -1;">
-		<!-- Canvas will be appended here by p5.js -->
-	</div>
-</div>
