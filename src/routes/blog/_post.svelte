@@ -96,21 +96,32 @@
 <main style="margin: 0; padding: 0;">
 	<div class="relative z-10 w-full max-w-full sm:max-w-screen-xl mx-auto p-2 sm:p-8 md:p-12">
 		{#if image}
-			<div class="bg-cover h-64 text-center overflow-hidden absolute inset-0 w-full" style="height: 450px; background-image: url('{image}')"></div>
+			<div class="bg-cover h-[450px] text-center overflow-hidden absolute left-2 right-2 sm:left-8 md:left-12 lg:left-[3rem] sm:right-8 md:right-12 lg:right-[3rem] top-0" style="background-image: url('{image}')"></div>
 		{:else}
-			<div class="{color || randomColor} h-64 text-center overflow-hidden absolute inset-0 w-full" style="height: 450px;"></div>
+			<div class="{color || randomColor} h-[450px] text-center overflow-hidden absolute left-2 right-2 sm:left-8 md:left-12 lg:left-[3rem] sm:right-8 md:right-12 lg:right-[3rem] top-0"></div>
 		{/if}
-		<div class="relative w-full max-w-full sm:max-w-2xl mx-auto mt-32 sm:mt-64 z-10">
-			<div class="rounded flex flex-col justify-between leading-normal p-4" style="background:rgba(255,255,255,.8)">
+		
+		<!-- Header section -->
+		<div class="relative w-full max-w-full sm:max-w-2xl mx-auto mt-24 z-10">
+			<div class="rounded rounded-b-none flex flex-col justify-between leading-normal p-4 min-h-[350px]" style="background:rgba(255,255,255,.9)">
 				<div class="relative">
 					{#each tags as tag}
-						<a href="javascript:void(0);" class="text-xs text-indigo-600 uppercase font-medium hover:text-gray-900 transition duration-500 ease-in-out">{tag}</a>{#if tag !== tags[tags.length - 1]}, {/if}
+						<a href="#tag-{tag}" 
+						   class="text-xs text-indigo-600 uppercase font-medium hover:text-gray-900 transition duration-500 ease-in-out">
+							{tag}
+						</a>{#if tag !== tags[tags.length - 1]}, {/if}
 					{/each}
 					<h1 class="text-gray-900 font-bold text-3xl mb-2">{title}</h1>
 					<p class="text-gray-700 text-xs mt-2">Written By: <span class="text-indigo-600 font-medium">{author}</span></p>
 					<p class="text-gray-700 text-xs">{date}</p>
 				</div>
-				<article class="prose prose-sm sm:prose lg:prose-lg w-full max-w-[100vw] sm:max-w-none mt-4">
+			</div>
+		</div>
+
+		<!-- Article content -->
+		<div class="relative w-full max-w-full sm:max-w-2xl mx-auto z-10">
+			<div class="rounded rounded-t-none flex flex-col justify-between leading-normal p-4" style="background:rgba(255,255,255,.9)">
+				<article class="prose prose-sm sm:prose lg:prose-lg w-full max-w-[100vw] sm:max-w-none">
 					<slot />
 				</article>
 			</div>
