@@ -11,6 +11,7 @@
 
 	import { onMount, onDestroy } from 'svelte';
 	import { beforeNavigate } from '$app/navigation'; // Updated import
+	import { page } from '$app/stores';
 
 	let sketchLoaded = false;
 	let sketchScript;
@@ -82,19 +83,21 @@
 			isLowPerformance: window.innerWidth <= 640 && window.navigator.hardwareConcurrency <= 4,
 			targetFrameRate: window.innerWidth <= 640 ? 24 : 30,
 			container: canvasContainer
-		};
-		// Fetch and load the sketch script
+			};
+		
+		// Fetch and load the sketch script with page URL as seed
 		const loadScript = (delay = 0) => {
 			setTimeout(() => {
-				fetch('/api/random-sketch')
-					.then(response => response.text())
-					.then(scriptContent => {
+				const seedUrl = $page.url.pathname;
+				fetch(`/api/random-sketch?seed=${encodeURIComponent(seedUrl)}`)
+					.then(response => response.json())
+					.then(data => {
 						const script = document.createElement('script');
-						script.textContent = scriptContent;
+						script.textContent = data.sketch;
 						document.body.appendChild(script);
 						sketchScript = script;
 					});
-				}, delay);
+			}, delay);
 		};
 		loadScript(window.innerWidth <= 640 ? 1000 : 0);
 	}
