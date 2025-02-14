@@ -120,7 +120,7 @@
         
         <!-- Header section -->
         <div class="relative w-full max-w-full sm:max-w-2xl mx-auto mt-40 z-10">
-            <div class="rounded rounded-b-none flex flex-col justify-between leading-normal p-4 min-h-[280px]" style="background:rgba(255,255,255,.9)">
+            <div class="rounded rounded-b-none sm:rounded-t-none flex flex-col justify-between leading-normal p-4 min-h-[280px]" style="background:rgba(255,255,255,.9)">
                 <div class="relative">
                     {#each tags as tag}
                         <a href="#tag-{tag}" 
