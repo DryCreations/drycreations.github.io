@@ -18,7 +18,12 @@ const config = {
 					return;
 				}
 				throw new Error(message);
-			}
+			},
+			entries: [
+				'*', // Include all routes
+				'/rss.xml',
+				'/api/random-sketch'
+			]
 		}
 	},
 	preprocess: [
