@@ -52,9 +52,9 @@
 	function handleScroll() {
 		if (sketchLoaded) return;
 		const scrollPosition = window.scrollY + window.innerHeight;
-		// Use document.documentElement.scrollHeight for cross-browser compatibility
-		const threshold = document.documentElement.scrollHeight;
-		if (scrollPosition >= threshold) {
+		const documentHeight = document.documentElement.scrollHeight;
+		// Load sketch when scrolled halfway down the page
+		if (scrollPosition >= documentHeight / 2) {
 			loadSketch();
 			sketchLoaded = true;
 		}

@@ -40,14 +40,14 @@ new p5((p) => {
 		console.log('Canvas created with width:', mainWidth, 'and height:', mainHeight);
 
 		 // Adjusted parameters for better branching
-		maxAgents = Math.floor(p.random(20, 60)); // Increased max agents
-		initialSize = p.random(20, 60); // Smaller initial size
-		minSize = p.random(0.5, 2); // Smaller end size
-		branchAngle = p.PI / p.random(6, 12); // More controlled branching angle
-		initialBranchProbability = p.random(0.001, 0.005); // Higher initial probability
-		maxBranchLength = p.random(100, 200); // Longer branches
-		minBranchLength = p.random(30, 50); // Longer minimum length
-		iterations = Math.floor(p.random(2, 4));
+		maxAgents = Math.floor(p.random(30, 80)); // Increased max agents for better branching
+		initialSize = p.random(30, 60); // More consistent initial size
+		minSize = p.random(2, 5); // Slightly larger minimum size
+		branchAngle = p.PI / p.random(8, 12); // More controlled branching angle
+		initialBranchProbability = p.random(0.002, 0.008); // Higher initial probability
+		maxBranchLength = p.random(80, 150); // Shorter but more consistent branches
+		minBranchLength = p.random(20, 40); // Shorter minimum length
+		iterations = Math.floor(p.random(5, 16));
 		startColor = [
 			17,
 			24,
@@ -117,7 +117,7 @@ new p5((p) => {
 			}
 
 			// Reduced destruction probability
-			let destructionProbability = p.map(agents.length, 0, maxAgents, 0.00001, 0.00005);
+			let destructionProbability = p.map(agents.length, 0, maxAgents, 0.00001, 0.0005);
 			if (p.random() < destructionProbability) {
 				agentPool.push(agents.splice(i, 1)[0]); // Randomly destroy the agent
 			}
@@ -145,7 +145,7 @@ new p5((p) => {
 		cleanup(); // Clean before starting new simulation
 		startTime = p.millis();
 		let initialAngle = -p.PI / 2 + p.random(-p.PI / 2, p.PI / 2); // Add slight variance to the starting angle
-		agents.push(getAgent(p.random(p.width), p.height, initialAngle, initialSize, startColor, initialBranchProbability, maxBranchLength));
+		agents.push(getAgent(p.random(p.width), p.height + initialSize, initialAngle, initialSize, startColor, initialBranchProbability, maxBranchLength));
 		x_variance = p.random(1, 30);
 		y_variance = p.random(1, 30);
 		p.loop();
@@ -193,48 +193,34 @@ new p5((p) => {
 		}
 
 		update() {
-			// More controlled angle changes
 			this.angle += this.angleStep * (0.5 + this.length/200);
 			const dx = p.cos(this.angle) * this.step;
-			let dy = p.sin(this.angle) * this.step * 1.5; // Increased vertical movement
+			let dy = p.sin(this.angle) * this.step; // Reduced vertical movement multiplier
 			
-			// Stronger upward bias
-			if (dy > -0.1) { // Force more upward movement
-				dy = -0.1;
+			// Less aggressive upward bias
+			if (dy > 0) {
+				dy *= -0.5; // Gentler upward correction
 			}
 			
-			// Boundary check before updating position
-			if (this.x + dx > 0 && this.x + dx < p.width) {
-				this.x += dx;
-			}
-			if (this.y + dy > 0 && this.y + dy < p.height) {
-				this.y += dy;
-			}
+			// Simpler boundary checks
+			this.x += dx;
+			this.y += dy;
 			
-			 // Slower size reduction
-			this.size *= Math.pow(this.sizeMultiplier, 0.7);
+			this.size *= Math.pow(this.sizeMultiplier, 0.8); // Slower size reduction
 			this.length += this.step;
 
-			// Modified branching probability progression
+			// Simplified branching probability progression
 			if (this.length > minBranchLength) {
-				this.branchProbability *= 1.05;
-			}
-			if (this.length > maxBranchLength * 0.7) {
-				this.branchProbability *= 1.1;
-			}
-			if (this.size < initialSize * 0.8) {
-				this.branchProbability *= 1.08;
+				this.branchProbability *= 1.03;
 			}
 		}
 
 		show() {
-			// Only draw if agent is on screen
-			if (this.x >= 0 && this.x <= p.width && 
-				this.y >= 0 && this.y <= p.height) {
-				// Use p.color to force an opacity value (e.g., 180 out of 255)
+			// Simplified visibility check
+			if (this.x >= -50 && this.x <= p.width + 50 && 
+				this.y >= -50 && this.y <= p.height + 50) {
 				let c = p.color(this.color[0], this.color[1], this.color[2], 180);
 				p.fill(c);
-				// p.rect(this.x, this.y, this.size, this.size);
 				p.ellipse(this.x, this.y, this.size, this.size);
 			}
 		}
