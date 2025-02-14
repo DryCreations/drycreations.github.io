@@ -107,7 +107,7 @@
 				<div class="relative">
 					{#each tags as tag}
 						<a href="#tag-{tag}" 
-						   class="text-xs text-indigo-600 uppercase font-medium hover:text-gray-900 transition duration-500 ease-in-out">
+						   class="inline-block rounded px-2 py-1 text-xs text-indigo-600 uppercase font-medium transition-colors duration-200 hover:bg-gray-800/10">
 							{tag}
 						</a>{#if tag !== tags[tags.length - 1]}, {/if}
 					{/each}

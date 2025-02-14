@@ -49,6 +49,9 @@
             callback();
         }
     }
+
+    // Add hover state tracking for social icons
+    let hoveredIcon = '';
 </script>
 
 <style>
@@ -56,7 +59,13 @@
 
 <!-- Overlay for mobile -->
 {#if sidebarOpen && !isDesktop}
-  <div class="fixed inset-0 bg-black opacity-50 z-30" on:click={toggleSidebar}></div>
+    <button 
+        type="button"
+        class="fixed inset-0 bg-black opacity-50 z-30 w-full h-full cursor-pointer"
+        on:click={toggleSidebar}
+        on:keydown={(e) => handleKeydown(e, toggleSidebar)}
+        aria-label="Close navigation menu"
+    />
 {/if}
   
 <div class="flex min-h-screen relative">
@@ -85,29 +94,59 @@
 	  role="navigation"
 	  aria-label="Blog navigation">
 	  
-	  <div class="p-6 pb-2">
-		<a href="/" class="text-2xl font-bold hover:text-indigo-400 transition-colors duration-200">Dry Creations</a>
+	  <div class="p-8 pb-4">
+		<a href="/" class="block rounded-lg p-2 -m-2 transition-colors duration-200 hover:bg-gray-800/50 flex items-center justify-center">
+			<span class="text-2xl font-bold">Dry Creations</span>
+		</a>
 	  </div>
-	  <div class="flex space-x-2 px-6 py-3">
+	  <div class="flex space-x-4 px-8 py-4">
 		<a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" 
-		   class="transform hover:scale-110 transition-transform duration-200"
+		   on:mouseenter={() => hoveredIcon = 'linkedin'}
+           on:mouseleave={() => hoveredIcon = ''}
+		   class="transition-all duration-200"
 		   aria-label="Visit LinkedIn profile">
-			<SocialIcons alt="LinkedIn" network="linkedin" fgColor="#eeeeee" bgColor="oklch(0.21 0.034 264.665)" />
+			<SocialIcons 
+				alt="LinkedIn" 
+				network="linkedin" 
+				fgColor="#eeeeee" 
+				bgColor={hoveredIcon === 'linkedin' ? "oklch(0.25 0.034 264.665)" : "oklch(0.21 0.034 264.665)"}
+				className="transition-colors duration-200" />
 		</a>
 		<a href="https://www.github.com" target="_blank" rel="noopener noreferrer" 
-		   class="transform hover:scale-110 transition-transform duration-200"
+		   on:mouseenter={() => hoveredIcon = 'github'}
+           on:mouseleave={() => hoveredIcon = ''}
+		   class="transition-all duration-200"
 		   aria-label="Visit GitHub profile">
-			<SocialIcons alt="GitHub" network="github" fgColor="#eeeeee" bgColor="oklch(0.21 0.034 264.665)" />
+			<SocialIcons 
+				alt="GitHub" 
+				network="github" 
+				fgColor="#eeeeee" 
+				bgColor={hoveredIcon === 'github' ? "oklch(0.25 0.034 264.665)" : "oklch(0.21 0.034 264.665)"}
+				className="transition-colors duration-200" />
 		</a>
 		<a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" 
-		   class="transform hover:scale-110 transition-transform duration-200"
+		   on:mouseenter={() => hoveredIcon = 'youtube'}
+           on:mouseleave={() => hoveredIcon = ''}
+		   class="transition-all duration-200"
 		   aria-label="Visit YouTube profile">
-			<SocialIcons alt="YouTube" network="youtube" fgColor="#eeeeee" bgColor="oklch(0.21 0.034 264.665)" />
+			<SocialIcons 
+				alt="YouTube" 
+				network="youtube" 
+				fgColor="#eeeeee" 
+				bgColor={hoveredIcon === 'youtube' ? "oklch(0.25 0.034 264.665)" : "oklch(0.21 0.034 264.665)"}
+				className="transition-colors duration-200" />
 		</a>
 		<a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" 
-		   class="transform hover:scale-110 transition-transform duration-200"
+		   on:mouseenter={() => hoveredIcon = 'instagram'}
+           on:mouseleave={() => hoveredIcon = ''}
+		   class="transition-all duration-200"
 		   aria-label="Visit Instagram profile">
-			<SocialIcons alt="Instagram" network="instagram" fgColor="#eeeeee" bgColor="oklch(0.21 0.034 264.665)" />
+			<SocialIcons 
+				alt="Instagram" 
+				network="instagram" 
+				fgColor="#eeeeee" 
+				bgColor={hoveredIcon === 'instagram' ? "oklch(0.25 0.034 264.665)" : "oklch(0.21 0.034 264.665)"}
+				className="transition-colors duration-200" />
 		</a>
 	</div>
 	  <nav class="px-4 pt-2 space-y-2" aria-label="Blog archive">
